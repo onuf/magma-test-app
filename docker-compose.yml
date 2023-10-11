@@ -1,0 +1,22 @@
+version: '3.8'
+
+services:
+  user-service:
+    container_name: user-service-1
+    build:
+      context: .
+      dockerfile: ./src/services/user-service/Dockerfile
+    ports:
+      - 3001:3001
+    depends_on:
+      - mongo
+    environment:
+      PORT: 3001
+      DATABASE_URL: 'mongodb://mongo:27017/users_db'
+  
+  mongo:
+    image: mongo
+    ports:
+      - 27017:27017
+    environment:
+      MONGO_INITDB_DATABASE: users_db
