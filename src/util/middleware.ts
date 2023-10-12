@@ -1,14 +1,6 @@
 import { RequestHandler, ErrorRequestHandler } from 'express';
 import logger from './logger';
 
-export const requestLogger: RequestHandler = (request, response, next) => {
-  logger.info('Method:', request.method);
-  logger.info('Path:  ', request.path);
-  logger.info('Body:  ', request.body);
-  logger.info('---');
-  next();
-};
-
 export const errorHandler: ErrorRequestHandler = (error, request, response, next) => {
   logger.error(error.message);
 

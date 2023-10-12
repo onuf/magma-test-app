@@ -1,6 +1,7 @@
-import express from 'express';
+import express, { Request } from 'express';
 import 'express-async-errors';
 import mongoose from 'mongoose';
+import morgan from 'morgan';
 
 import userRouter from './services/user-service/routes/users';
 import config from './util/config';
@@ -18,7 +19,11 @@ const startApp = async () => {
     logger.info('Connected to MongoDB');
 
     app.use(express.json());
-    app.use(middleware.requestLogger);
+
+    app.use(morgan(':method :url :status :res[content-length] - :response-time ms :body'));
+    morgan.token('body', function (request: Request) {
+      return JSON.stringify(request.body);
+    });
 
     app.get('/api/info', (request, response) => {
       response.send(`App is running with this config: ${JSON.stringify(config)}`);

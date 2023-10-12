@@ -1,9 +1,44 @@
 import { Request, Response } from 'express';
 import UserModel from '../models/user';
+import { transformToJson } from '../util/helpers';
+import { isString } from '../util/validators';
 
 export const getAllUsers = async (request: Request, response: Response) => {
-  const users = await UserModel.find({});
-  response.send(users);
+  const page = isString(request.query.page) ? (parseInt(request.query.page) || 1) : 1;
+  const limit = isString(request.query.limit) ? (parseInt(request.query.limit) || 5) : 5;
+
+  // const users = await UserModel.find({}).skip((page - 1) * limit).limit(limit);
+  // return users;
+  const result = await UserModel.aggregate([
+    {
+      $facet: {
+        metadata: [
+          { $count: 'totalDocuments' },
+          { $addFields: {
+            totalPages: { $ceil: { $divide: ['$totalDocuments', limit] } },
+            pageNumber: page,
+          } },
+        ],
+        data: [
+          { $skip: (page - 1) * limit },
+          { $limit: limit },
+        ],
+      },
+    }
+  ]);
+
+  const users = result[0] as Record<string, unknown>;
+
+  users.metadata = {
+    ...(<Array<object>>users.metadata)[0],
+    pageItemCount: (<Array<Record<string, unknown>>>users.data).length,
+  };
+
+  if (Array.isArray(users.data)) {
+    users.data = (<Array<Record<string, unknown>>>users.data).map((user) => transformToJson(user));
+  }
+
+  return response.send(users);
 };
 
 export const getUserById = async (request: Request, response: Response) => {
