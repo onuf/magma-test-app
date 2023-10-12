@@ -29,6 +29,10 @@ const startApp = async () => {
       response.send(`App is running with this config: ${JSON.stringify(config)}`);
     });
 
+    app.get('/health', (request, response) => {
+      response.json({ status: 'User Service is responding' });
+    });
+
     app.use('/api/users', userRouter);
 
     app.use(middleware.unknownEndpoint);

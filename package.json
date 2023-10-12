@@ -7,7 +7,7 @@
     "tsc": "tsc",
     "dev": "ts-node-dev src/index.ts",
     "start": "node build/index.js",
-    "start-notification-service": "node build/services/notification-service/notification-consumer.js",
+    "start-notification-service": "node build/services/notification-service/index.js",
     "lint": "eslint --ext .ts ."
   },
   "repository": {

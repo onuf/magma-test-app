@@ -15,16 +15,31 @@ services:
       PORT: 3001
       DATABASE_URL: 'mongodb://mongo:27017/users_db'
       RABBIT_MQ_URL: 'amqp://rabbitmq:5672'
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://user-service:3001/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 40s
 
   notification-service:
     container_name: notification-service
     build:
       context: .
       dockerfile: ./src/services/notification-service/Dockerfile
+    ports:
+      - 3002:3002
     depends_on:
       - rabbitmq
     environment:
+      NOTIFICATION_SERVICE_PORT: 3002
       RABBIT_MQ_URL: 'amqp://rabbitmq:5672'
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://notification-service:3002/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 40s
 
   mongo:
     image: mongo

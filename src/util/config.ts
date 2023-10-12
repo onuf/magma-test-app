@@ -7,12 +7,14 @@ export interface RabbitMQConfig {
 
 export interface Config {
   PORT: string | number,
+  NOTIFICATION_SERVICE_PORT: string | number,
   DATABASE_URL: string,
   rabbitMQ: RabbitMQConfig,
 }
 
 const config: Config = {
   PORT: process.env.PORT || 3001,
+  NOTIFICATION_SERVICE_PORT: process.env.NOTIFICATION_SERVICE_PORT || 3002,
   DATABASE_URL: process.env.DATABASE_URL || 'mongodb://localhost:27017/users_db',
   rabbitMQ: {
     URL: process.env.RABBIT_MQ_URL || 'amqp://localhost',

@@ -22,3 +22,9 @@ Overview:
   - Consumes messages from message broker `RabbitMQ` (using direct exchange type).
   - Whenever a user is created, sends a mock notification welcoming the user.
   - Whenever a user is deleted, sends a mock notification informing about the deletion.
+
+To check the health status of the services, run the command:
+
+```sh
+docker-compose ps
+```

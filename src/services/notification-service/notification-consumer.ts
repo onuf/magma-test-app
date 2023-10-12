@@ -45,7 +45,7 @@ async function connectWithRetry(maxRetries: number = 4, retryDelay: number = 500
   }
 }
 
-async function consumeNotifications() {
+export async function consumeNotifications() {
   logger.info('Connecting to', config.rabbitMQ.URL);
   await connectWithRetry();
 }
@@ -57,6 +57,3 @@ function handleUserEvent(event: UserEventData) {
     logger.info(`Goodbye, ${event.data.name}!`);
   }
 }
-
-consumeNotifications()
-  .catch((error) => logger.error('Error connecting to RabbitMQ:', error));
