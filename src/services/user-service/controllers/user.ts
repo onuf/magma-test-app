@@ -1,7 +1,13 @@
 import { Request, Response } from 'express';
 import UserModel from '../models/user';
+import { UserEventProducer } from '../events/notification-producer';
+import { USER_EVENTS } from '../../../util/types';
+import config from '../../../util/config';
 import { transformToJson } from '../util/helpers';
 import { isString } from '../util/validators';
+
+
+const eventProducer = new UserEventProducer(config.rabbitMQ);
 
 export const getAllUsers = async (request: Request, response: Response) => {
   const page = isString(request.query.page) ? (parseInt(request.query.page) || 1) : 1;
@@ -53,6 +59,14 @@ export const createUser = async (request: Request, response: Response) => {
   const { name, email } = request.body as Record<string, string>;
   const user = new UserModel({ name, email });
   const savedUser = await user.save();
+  await eventProducer.publishEvent({
+    type: USER_EVENTS.CREATION,
+    data: {
+      name,
+      email,
+      id: savedUser.id as string,
+    },
+  });
   response.status(201).json(savedUser);
 };
 
@@ -70,6 +84,14 @@ export const deleteUser = async (request: Request, response: Response) => {
   const user = await UserModel.findById(request.params.id);
   if (user) {
     await user.deleteOne();
+    await eventProducer.publishEvent({
+      type: USER_EVENTS.DELETION,
+      data: {
+        name: user.name,
+        email: user.email,
+        id: user.id as string,
+      },
+    });
   }
   response.status(204).end();
 };

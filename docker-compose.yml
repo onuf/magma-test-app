@@ -2,7 +2,7 @@ version: '3.8'
 
 services:
   user-service:
-    container_name: user-service-1
+    container_name: user-service
     build:
       context: .
       dockerfile: ./src/services/user-service/Dockerfile
@@ -10,13 +10,33 @@ services:
       - 3001:3001
     depends_on:
       - mongo
+      - rabbitmq
     environment:
       PORT: 3001
       DATABASE_URL: 'mongodb://mongo:27017/users_db'
-  
+      RABBIT_MQ_URL: 'amqp://rabbitmq:5672'
+
+  notification-service:
+    container_name: notification-service
+    build:
+      context: .
+      dockerfile: ./src/services/notification-service/Dockerfile
+    depends_on:
+      - rabbitmq
+    environment:
+      RABBIT_MQ_URL: 'amqp://rabbitmq:5672'
+
   mongo:
     image: mongo
+    container_name: mongo-db
     ports:
       - 27017:27017
     environment:
       MONGO_INITDB_DATABASE: users_db
+
+  rabbitmq:
+    image: 'rabbitmq:3-management'
+    container_name: rabbit-mq
+    ports:
+      - 5672:5672
+      - 15672:15672
